@@ -1,0 +1,2 @@
+﻿Name,StatusDate,Note
+Reporting status date,2026-10-31,"Simulated reporting date used for overdue logic. Replace with the real review date, or use TODAY() in a measure for live use."

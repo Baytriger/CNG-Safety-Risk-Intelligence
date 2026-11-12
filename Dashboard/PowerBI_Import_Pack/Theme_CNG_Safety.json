@@ -1,0 +1,28 @@
+{
+  "name": "CNG Safety Risk Intelligence (simulated data)",
+  "dataColors": [
+    "#1F3A4D",
+    "#5B7A99",
+    "#A9C3DB",
+    "#D97B29",
+    "#8A949C",
+    "#6FA3C7",
+    "#4E9A5B",
+    "#C8342B"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#222222",
+  "tableAccent": "#1F3A4D",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 14,
+      "color": "#1F3A4D"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#222222"
+    }
+  }
+}

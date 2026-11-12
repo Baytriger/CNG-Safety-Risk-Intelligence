@@ -1,0 +1,6 @@
+﻿Level,Label,Definition
+1,Rare,Not expected during the life of the operation; would need several independent control failures.
+2,Unlikely,Has happened in the industry but is not expected at this operation within several years.
+3,Possible,Could occur within a few years; relies partly on consistent human performance or unverified controls.
+4,Likely,Expected to occur within a year; known weaknesses exist in the controls.
+5,Almost certain,Expected to occur repeatedly; the conditions for the event exist routinely.

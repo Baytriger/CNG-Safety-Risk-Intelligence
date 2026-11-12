@@ -1,0 +1,79 @@
+// DAX for the CNG Safety Risk Intelligence model. Create these in Power BI Desktop (Modeling > New table / New column / New measure).
+// Nothing here is a typed-in KPI value: every figure is calculated from the loaded tables, and risk bands come from DimRiskBand.
+// All data is SIMULATED.
+
+// ===== Date table (new table) =====
+DimDate =
+ADDCOLUMNS (
+    CALENDAR ( DATE ( 2026, 1, 1 ), DATE ( 2026, 12, 31 ) ),
+    "Month", FORMAT ( [Date], "yyyy-MM" ),
+    "MonthStart", DATE ( YEAR ( [Date] ), MONTH ( [Date] ), 1 )
+)
+
+// ===== Hazards: calculated columns =====
+Initial Score = Hazards[Initial Likelihood] * Hazards[Initial Severity]
+Residual Score = Hazards[Residual Likelihood] * Hazards[Residual Severity]
+Initial Risk Category =
+VAR s = Hazards[Initial Score]
+RETURN MAXX ( TOPN ( 1, FILTER ( DimRiskBand, DimRiskBand[MinScore] <= s ), DimRiskBand[MinScore], DESC ), DimRiskBand[BandName] )
+Residual Risk Category =
+VAR s = Hazards[Residual Score]
+RETURN MAXX ( TOPN ( 1, FILTER ( DimRiskBand, DimRiskBand[MinScore] <= s ), DimRiskBand[MinScore], DESC ), DimRiskBand[BandName] )
+Initial Band Order = MAXX ( FILTER ( DimRiskBand, DimRiskBand[BandName] = Hazards[Initial Risk Category] ), DimRiskBand[SortOrder] )
+Residual Band Order = MAXX ( FILTER ( DimRiskBand, DimRiskBand[BandName] = Hazards[Residual Risk Category] ), DimRiskBand[SortOrder] )
+
+// ===== Actions: calculated columns (same logic as the Excel tracker) =====
+Action Status =
+IF (
+    NOT ISBLANK ( Actions[Completion Date] ) && NOT ISBLANK ( Actions[Evidence of Closure] ) && NOT ISBLANK ( Actions[Verification Date] ),
+    "Closed (Verified)",
+    IF (
+        NOT ISBLANK ( Actions[Completion Date] ),
+        "Completed (Awaiting Verification)",
+        IF (
+            Actions[Target Completion Date] < MAX ( Settings[StatusDate] ),
+            "Overdue",
+            IF ( Actions[Recorded Status] = "In Progress", "In Progress", "Not Started" )
+        )
+    )
+)
+Days Overdue = IF ( Actions[Action Status] = "Overdue", DATEDIFF ( Actions[Target Completion Date], MAX ( Settings[StatusDate] ), DAY ), 0 )
+Hazard Category = LOOKUPVALUE ( Hazards[Operational Category], Hazards[Hazard ID], Actions[Related Hazard ID] )
+Hazard Initial Risk Category = LOOKUPVALUE ( Hazards[Initial Risk Category], Hazards[Hazard ID], Actions[Related Hazard ID] )
+
+// ===== KPI measures =====
+Total Hazards = DISTINCTCOUNT ( Hazards[Hazard ID] )
+Extreme Hazards = CALCULATE ( [Total Hazards], Hazards[Initial Risk Category] = "Extreme" )
+High Hazards = CALCULATE ( [Total Hazards], Hazards[Initial Risk Category] = "High" )
+Total Actions = COUNTROWS ( Actions )
+Closed Actions = CALCULATE ( COUNTROWS ( Actions ), Actions[Action Status] = "Closed (Verified)" )
+Open Actions = [Total Actions] - [Closed Actions]
+Overdue Actions = CALCULATE ( COUNTROWS ( Actions ), Actions[Action Status] = "Overdue" )
+Awaiting Verification = CALCULATE ( COUNTROWS ( Actions ), Actions[Action Status] = "Completed (Awaiting Verification)" )
+Pct Actions Closed = DIVIDE ( [Closed Actions], [Total Actions] )
+Pct Open Actions Overdue = DIVIDE ( [Overdue Actions], [Open Actions] )
+Near Miss Records = CALCULATE ( COUNTROWS ( Records ), Records[Record Type] = "Near miss" )
+Unsafe Condition Records = CALCULATE ( COUNTROWS ( Records ), Records[Record Type] = "Unsafe condition" )
+Actual Incident Records = CALCULATE ( COUNTROWS ( Records ), Records[Record Type] = "Incident (actual)" )
+Sum Initial Score = SUM ( Hazards[Initial Score] )
+Sum Residual Score = SUM ( Hazards[Residual Score] )
+Residual High or Extreme = CALCULATE ( [Total Hazards], Hazards[Residual Risk Category] IN { "High", "Extreme" } )
+Checklist Compliance % =
+VAR c = CALCULATE ( COUNTROWS ( Checklist ), Checklist[Response (SIMULATED sample)] = "Compliant" )
+VAR n = CALCULATE ( COUNTROWS ( Checklist ), Checklist[Response (SIMULATED sample)] = "Non-compliant" )
+RETURN DIVIDE ( c, c + n )
+
+// ===== 5 x 5 heat map (matrix visual: rows DimLikelihood[Level], columns DimSeverity[Level], values [Hazards In Cell]) =====
+Hazards In Cell =
+VAR l = SELECTEDVALUE ( DimLikelihood[Level] )
+VAR s = SELECTEDVALUE ( DimSeverity[Level] )
+RETURN CALCULATE ( COUNTROWS ( Hazards ), Hazards[Initial Likelihood] = l, Hazards[Initial Severity] = s )
+Cell Score = SELECTEDVALUE ( DimLikelihood[Level] ) * SELECTEDVALUE ( DimSeverity[Level] )
+Cell Colour =
+VAR s = [Cell Score]
+RETURN SWITCH ( TRUE (),
+    s >= 17, "#C8342B",   // Extreme  (keep in step with DimRiskBand)
+    s >= 10, "#F0924A",   // High
+    s >= 5,  "#F2CB5C",   // Moderate
+    "#7FB77E" )           // Low
+// Apply: matrix > Cell elements > Background colour > Format by "Field value" > [Cell Colour]. Show zero as blank by hiding values of 0 with a conditional format on font colour.

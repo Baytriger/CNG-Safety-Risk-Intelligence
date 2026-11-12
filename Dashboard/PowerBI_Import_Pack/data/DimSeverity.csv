@@ -1,0 +1,6 @@
+﻿Level,Label,People,ProcessSafety,AssetOperations,EnvironmentCommunity
+1,Insignificant,No injury.,Negligible weep; no flammable accumulation.,No downtime; no damage.,No off-site effect.
+2,Minor,First aid case.,"Small, quickly isolated release; no ignition potential realised.",Less than one shift lost; minor repair.,Minor on-site spill contained.
+3,Moderate,"Medical treatment, restricted work or lost-time injury.",Release needing isolation and area evacuation.,Equipment damage; outage of days.,Reportable on-site release; local nuisance.
+4,Major,Serious injury or permanent disability.,Significant release with credible ignition; fire or flash-fire potential.,Major equipment damage; extended outage.,Alert or evacuation beyond the fence line.
+5,Catastrophic,Fatality or multiple serious injuries.,"Jet fire, explosion or rupture of high-pressure equipment.",Loss of a facility or trailer; prolonged shutdown.,Public harm or major community impact.

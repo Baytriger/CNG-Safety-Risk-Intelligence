@@ -1,0 +1,5 @@
+﻿BandName,MinScore,MaxScore,SortOrder,RequiredResponse
+Low,1,4,1,Manage by routine procedures; review at the next scheduled assessment.
+Moderate,5,9,2,Management attention required; actions planned and tracked within 90 days.
+High,10,16,3,Senior management attention; actions started promptly and completed within 60 days; competent-person review where flagged.
+Extreme,17,25,4,Unacceptable without immediate additional control; consider stopping or restricting the activity; actions within 30 days.
