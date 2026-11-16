@@ -7,11 +7,15 @@ All data is **SIMULATED** (independent portfolio case study; no Powergas records
 ## Contents
 | File | Purpose |
 |---|---|
+| `PowerBI_Data.xlsx` | All eight tables in one workbook for a single-step load. |
 | `data/Hazards.csv`, `Actions.csv`, `Records.csv`, `Checklist.csv` | Fact tables exported from the workbook (same record IDs). |
 | `data/DimRiskBand.csv`, `DimLikelihood.csv`, `DimSeverity.csv`, `Settings.csv` | Scoring scales, band thresholds and the reporting status date (31 October 2026). |
 | `PowerQuery_Load.m` | Eight Power Query queries (create a `DataFolder` parameter first). |
 | `DAX_Measures.dax` | Date table, calculated columns and measures. Scores, categories and action status are recalculated from inputs. |
 | `Theme_CNG_Safety.json` | Muted industrial theme (View > Themes > Browse for themes). |
+
+## Quick load (one file)
+`PowerBI_Data.xlsx` holds all eight tables, one per sheet, with headers in row 1. In Power BI Desktop choose **Get data > Excel workbook**, pick this file, tick all eight sheets in the Navigator and click **Load**. This replaces steps 1 and 2 below.
 
 ## Steps
 1. Open Power BI Desktop. Create a Text parameter `DataFolder` with the path to the `data` folder, ending in a backslash.
